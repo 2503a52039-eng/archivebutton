@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Archive Button</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">S3 → Glacier · Pilot demo</p>
+      <h1>Archive Button</h1>
+    </div>
+    <div class="device" id="deviceBadge"><span class="dot"></span><span id="deviceText">Device online</span></div>
+  </header>
+
+  <main>
+    <!-- Virtual device -->
+    <section class="card device-card">
+      <h2>Virtual device</h2>
+      <p class="muted">Press and hold the button for 2 seconds, just like the physical one.</p>
+
+      <div class="button-wrap">
+        <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="54" class="ring-bg"/>
+          <circle cx="60" cy="60" r="54" class="ring-fg" id="ringFg"/>
+        </svg>
+        <button id="bigButton" class="big-button" aria-label="Hold to archive">ARCHIVE</button>
+      </div>
+      <p id="hint" class="hint">Hold to archive</p>
+
+      <div id="result" class="result" hidden></div>
+
+      <div class="legend">
+        <span><i class="b ok"></i> 1 beep = success</span>
+        <span><i class="b warn"></i> 2 beeps = partial</span>
+        <span><i class="b bad"></i> long tone = failure</span>
+      </div>
+
+      <details class="demo-tools">
+        <summary>Demo controls</summary>
+        <label>Next run outcome
+          <select id="inject">
+            <option value="none">Normal</option>
+            <option value="partial">Force partial (files left behind)</option>
+            <option value="failure">Force failure (permission error)</option>
+          </select>
+        </label>
+        <label>Age limit (days)
+          <input type="number" id="ageLimit" min="1" max="3650" value="90">
+        </label>
+        <label class="check"><input type="checkbox" id="offline"> Simulate device offline</label>
+        <label class="check"><input type="checkbox" id="muted"> Mute buzzer</label>
+        <button id="resetBtn" class="ghost">Reset demo data</button>
+      </details>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dash">
+      <div class="kpis">
+        <div class="card kpi"><b id="kFiles">–</b><span>Files archived</span></div>
+        <div class="card kpi"><b id="kGb">–</b><span>GB moved to archive</span></div>
+        <div class="card kpi"><b id="kRuns">–</b><span>Runs this week</span></div>
+        <div class="card kpi bad"><b id="kFail">–</b><span>Failed</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Files archived per day</h2>
+        <div id="chart" class="chart"></div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <h2>Recent runs</h2>
+          <ul id="runs" class="runs"></ul>
+        </div>
+        <div class="card">
+          <h2>Bucket</h2>
+          <div id="bucket" class="bucket"></div>
+          <h2 class="sub">Incidents</h2>
+          <ul id="incidents" class="incidents"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Figures come from a local simulation. See README for the real AWS setup.</footer>
+  <script src="app.js"></script>
+</body>
+</html>
