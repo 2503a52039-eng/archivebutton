@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: dropbox-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dropbox
+      POSTGRES_USER: dropbox_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_local_password}
+    volumes:
+      - dropbox_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dropbox_user -d dropbox"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    container_name: dropbox-api
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgres://dropbox_user:${POSTGRES_PASSWORD:-change_this_local_password}@db:5432/dropbox
+      BUCKET_DIR: /data/buckets
+      UPLOAD_DELAY_MS: 2500
+      CONVERT_DELAY_MS: 2500
+      OFFLINE_AFTER_SECONDS: 30
+      NODE_ENV: production
+    volumes:
+      - dropbox_bucket_data:/data/buckets
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: ./frontend
+    container_name: dropbox-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  dropbox_db_data:
+  dropbox_bucket_data:
